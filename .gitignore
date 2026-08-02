@@ -1,7 +1,7 @@
-bin
-include
-lib
-.Python
-tests/
-.envrc
-__pycache__
+env/
+__pycache__/
+.env
+.DS_Store
+.pytest_cache/
+.coverage
+htmlcov/
