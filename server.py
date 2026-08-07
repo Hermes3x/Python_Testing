@@ -20,6 +20,13 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
+def find_club_by_email(clubs, email):
+    matching_clubs = [club for club in clubs if club['email'] == email]
+    if not matching_clubs:
+        return None
+
+    return matching_clubs[0]
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -27,14 +34,14 @@ def index():
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
 
-    matching_clubs = [club for club in clubs if club['email'] == request.form['email']]
+    email = request.form['email']
+    club = find_club_by_email(clubs, email)
 
-    if not matching_clubs:
+    if club is None:
         flash("Sorry, that email wasn't found.")
         return render_template('index.html')
 
     else :
-        club = matching_clubs[0]
         return render_template('welcome.html',club=club,competitions=competitions)
 
 
