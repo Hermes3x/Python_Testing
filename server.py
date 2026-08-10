@@ -20,12 +20,13 @@ app.secret_key = 'something_special'
 competitions = loadCompetitions()
 clubs = loadClubs()
 
-def find_club_by_email(clubs, email):
-    matching_clubs = [club for club in clubs if club['email'] == email]
-    if not matching_clubs:
+
+def find_by(items, key, value):
+    matching_items = [item for item in items if item[key] == value]
+    if not matching_items:
         return None
 
-    return matching_clubs[0]
+    return matching_items[0]
 
 
 @app.route('/')
@@ -36,7 +37,7 @@ def index():
 def showSummary():
 
     email = request.form['email']
-    club = find_club_by_email(clubs, email)
+    club = find_by(clubs, "email", email)
 
     if club is None:
         flash("Sorry, that email wasn't found.")
@@ -48,10 +49,10 @@ def showSummary():
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
-    foundClub = [c for c in clubs if c['name'] == club]
-    foundCompetition = [c for c in competitions if c['name'] == competition]
+    foundClub = find_by(clubs, "name", club)
+    foundCompetition = find_by(competitions, "name", competition)
     if foundClub and foundCompetition:
-        return render_template('booking.html',club=foundClub[0],competition=foundCompetition[0])
+        return render_template('booking.html',club=foundClub,competition=foundCompetition)
     else:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
