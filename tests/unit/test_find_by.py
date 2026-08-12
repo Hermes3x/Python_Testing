@@ -21,10 +21,11 @@ def test_find_by_returns_none_when_not_found(fake_clubs):
 
     assert result is None
 
+
 def test_find_by_returns_none_when_list_is_empty():
     fake_clubs = []
 
-    result = find_by(fake_clubs,"name", "Club A")
+    result = find_by(fake_clubs, "name", "Club A")
 
     assert result is None
 
