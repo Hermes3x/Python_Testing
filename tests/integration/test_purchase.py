@@ -1,6 +1,6 @@
 def test_purchase_deducts_points_from_club(client):
     response = client.post("/purchasePlaces", data={
-        "competition": "Spring Festival",
+        "competition": "Winter Challenge",
         "club": "Simply Lift",
         "places": "3"
     })
