@@ -31,3 +31,9 @@ def test_valid_email_shows_club_points(client):
     response = client.post("/showSummary", data={"email": valid_mail})
 
     assert "Points available: 13" in response.get_data(as_text=True)
+
+
+def test_index_page_loads(client):
+    response = client.get("/")
+
+    assert "Welcome to the GUDLFT Registration Portal!" in response.get_data(as_text=True)

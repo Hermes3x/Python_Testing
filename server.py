@@ -60,10 +60,10 @@ def book(competition, club):
         if datetime.now() < competition_date:
             return render_template('booking.html', club=foundClub, competition=foundCompetition)
         else: 
-            flash("Sorry, this competition is over")
+            flash("Sorry, this competition has already taken place.")
             return render_template('welcome.html', club=foundClub, competitions=competitions)
     else:
-        flash("Something went wrong-please try again")
+        flash("Sorry, we could not find that club or competition.")
         return render_template('welcome.html', club=foundClub, competitions=competitions)
 
 
@@ -74,34 +74,34 @@ def purchasePlaces():
     club = find_by(clubs, "name", request.form['club'])
 
     if not competition or not club:
-        flash("Something went wrong-please try again")
+        flash("Sorry, we could not find that club or competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     places_input = request.form['places']
 
     if not places_input.isdigit() or int(places_input) < 1:
-        flash("Invalid form : please enter a positive number of place")
+        flash("Please enter a number of places greater than zero.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     placesRequired = int(places_input)
     booked_places = competition['bookings'].get(club['name'], 0)
 
     if placesRequired > int(club['points']):
-        flash("Sorry, you are trying to purchase more places than your available points")
+        flash("Sorry, you do not have enough points for that many places.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     if placesRequired > int(competition['numberOfPlaces']):
-        flash("Sorry : Not enough places are available")
+        flash("Sorry, there are not enough places left in this competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     if booked_places + placesRequired > 12:
-        flash("Sorry : You are not allowed to purchase more than 12 places in a single competition")
+        flash("Sorry, a club cannot book more than 12 places in one competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = int(club['points']) - placesRequired
     competition['bookings'][club['name']] = booked_places + placesRequired
-    flash('Great-booking complete!')
+    flash("Great! Your booking is complete.")
     return render_template('welcome.html', club=club, competitions=competitions)
 
 

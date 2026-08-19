@@ -19,7 +19,7 @@ def test_valid_booking_page_shows_competition(client):
 def test_booking_a_competition_in_the_past_is_impossible(client):
     response = client.get("/book/Spring%20Festival/Simply%20Lift")
 
-    assert "Sorry, this competition is over" in response.get_data(as_text=True)
+    assert "Sorry, this competition has already taken place." in response.get_data(as_text=True)
 
 
 def test_booking_page_is_not_shown_for_past_competition(client):

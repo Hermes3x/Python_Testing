@@ -15,7 +15,7 @@ def test_cannot_buy_more_places_than_points(client):
         "places": "6"
     })
 
-    assert "Sorry, you are trying to purchase more places than your available points" in response.get_data(as_text=True)
+    assert "Sorry, you do not have enough points for that many places." in response.get_data(as_text=True)
     assert "Points available: 4" in response.get_data(as_text=True)
 
 
@@ -26,7 +26,7 @@ def test_purchase_with_unknown_club_does_not_crash(client):
         "places": "1"
     })
 
-    assert "Something went wrong" in response.get_data(as_text=True)
+    assert "Sorry, we could not find that club or competition." in response.get_data(as_text=True)
 
 
 def test_purchase_more_places_than_available_is_not_allowed(client):
@@ -36,7 +36,7 @@ def test_purchase_more_places_than_available_is_not_allowed(client):
         "places": "12"
     })
 
-    assert "Sorry : Not enough places are available" in response.get_data(as_text=True)
+    assert "Sorry, there are not enough places left in this competition." in response.get_data(as_text=True)
     assert "Number of Places: 10" in response.get_data(as_text=True)
 
 
@@ -72,7 +72,7 @@ def test_purchase_12_places_max(client):
         })
 
     assert "Points available: 6" in response.get_data(as_text=True)
-    assert "Sorry : You are not allowed to purchase more than 12 places in a single competition" in response.get_data(as_text=True)
+    assert "Sorry, a club cannot book more than 12 places in one competition." in response.get_data(as_text=True)
 
 
 def test_purchase_with_empty_places_field_is_rejected(client):
@@ -82,7 +82,7 @@ def test_purchase_with_empty_places_field_is_rejected(client):
         "places": ""
     })
 
-    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Please enter a number of places greater than zero." in response.get_data(as_text=True)
     assert "Points available: 13" in response.get_data(as_text=True)
 
 
@@ -93,7 +93,7 @@ def test_purchase_with_negative_places_is_rejected(client):
         "places": "-5"
     })
 
-    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Please enter a number of places greater than zero." in response.get_data(as_text=True)
     assert "Points available: 13" in response.get_data(as_text=True)
 
 
@@ -104,5 +104,5 @@ def test_purchase_with_zero_places_is_rejected(client):
         "places": "0"
     })
 
-    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Please enter a number of places greater than zero." in response.get_data(as_text=True)
     assert "Points available: 13" in response.get_data(as_text=True)
