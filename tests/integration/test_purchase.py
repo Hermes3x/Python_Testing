@@ -36,5 +36,40 @@ def test_purchase_more_places_than_available_is_not_allowed(client):
         "places": "12"
     })
 
-    assert "Not enough places are available" in response.get_data(as_text=True)
+    assert "Sorry : Not enough places are available" in response.get_data(as_text=True)
     assert "Number of Places: 10" in response.get_data(as_text=True)
+
+
+def test_successive_purchases_deduct_points_cumulatively(client):
+    response = client.post("/purchasePlaces", data={
+            "competition": "Winter Challenge",
+            "club": "Simply Lift",
+            "places": "3"
+        })
+
+    assert "Points available: 10" in response.get_data(as_text=True)
+
+    response = client.post("/purchasePlaces", data={
+                "competition": "Winter Challenge",
+                "club": "Simply Lift",
+                "places": "3"
+            })
+
+    assert "Points available: 7" in response.get_data(as_text=True)
+
+
+def test_purchasing_12_places_max(client):
+    client.post("/purchasePlaces", data={
+            "competition": "Summer Con",
+            "club": "Simply Lift",
+            "places": "7"
+        })
+
+    response = client.post("/purchasePlaces", data={
+            "competition": "Summer Con",
+            "club": "Simply Lift",
+            "places": "6"
+        })
+
+    assert "Points available: 6" in response.get_data(as_text=True)
+    assert "Sorry : You are not allowed to purchase more than 12 places in a single competition" in response.get_data(as_text=True)

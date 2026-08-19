@@ -3,17 +3,26 @@
         {
             "name": "Spring Festival",
             "date": "2020-03-27 10:00:00",
-            "numberOfPlaces": "25"
+            "numberOfPlaces": "25",
+            "bookings": {}
         },
         {
             "name": "Fall Classic",
             "date": "2020-10-22 13:30:00",
-            "numberOfPlaces": "13"
+            "numberOfPlaces": "13",
+            "bookings": {}
         },
         {
             "name": "Winter Challenge",
             "date": "2030-01-15 10:00:00",
-            "numberOfPlaces": "10"
+            "numberOfPlaces": "10",
+            "bookings": {}
+        },
+        {
+            "name": "Summer Con",
+            "date": "2030-08-15 10:00:00",
+            "numberOfPlaces": "15",
+            "bookings": {}
         }
     ]
 }
