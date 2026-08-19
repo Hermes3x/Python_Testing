@@ -58,7 +58,7 @@ def test_successive_purchases_deduct_points_cumulatively(client):
     assert "Points available: 7" in response.get_data(as_text=True)
 
 
-def test_purchasing_12_places_max(client):
+def test_purchase_12_places_max(client):
     client.post("/purchasePlaces", data={
             "competition": "Summer Con",
             "club": "Simply Lift",
@@ -73,3 +73,36 @@ def test_purchasing_12_places_max(client):
 
     assert "Points available: 6" in response.get_data(as_text=True)
     assert "Sorry : You are not allowed to purchase more than 12 places in a single competition" in response.get_data(as_text=True)
+
+
+def test_purchase_with_empty_places_field_is_rejected(client):
+    response = client.post("/purchasePlaces", data={
+        "competition": "Winter Challenge",
+        "club": "Simply Lift",
+        "places": ""
+    })
+
+    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Points available: 13" in response.get_data(as_text=True)
+
+
+def test_purchase_with_negative_places_is_rejected(client):
+    response = client.post("/purchasePlaces", data={
+        "competition": "Winter Challenge",
+        "club": "Simply Lift",
+        "places": "-5"
+    })
+
+    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Points available: 13" in response.get_data(as_text=True)
+
+
+def test_purchase_with_zero_places_is_rejected(client):
+    response = client.post("/purchasePlaces", data={
+        "competition": "Winter Challenge",
+        "club": "Simply Lift",
+        "places": "0"
+    })
+
+    assert "Invalid form : please enter a positive number of place" in response.get_data(as_text=True)
+    assert "Points available: 13" in response.get_data(as_text=True)

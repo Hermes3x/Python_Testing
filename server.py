@@ -73,12 +73,17 @@ def purchasePlaces():
     competition = find_by(competitions, "name", request.form['competition'])
     club = find_by(clubs, "name", request.form['club'])
 
-    placesRequired = int(request.form['places'])
-
     if not competition or not club:
         flash("Something went wrong-please try again")
         return render_template('welcome.html', club=club, competitions=competitions)
 
+    places_input = request.form['places']
+
+    if not places_input.isdigit() or int(places_input) < 1:
+        flash("Invalid form : please enter a positive number of place")
+        return render_template('welcome.html', club=club, competitions=competitions)
+
+    placesRequired = int(places_input)
     booked_places = competition['bookings'].get(club['name'], 0)
 
     if placesRequired > int(club['points']):
@@ -98,7 +103,6 @@ def purchasePlaces():
     competition['bookings'][club['name']] = booked_places + placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
-
 
 
 # TODO: Add route for points display
