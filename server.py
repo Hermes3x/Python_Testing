@@ -67,6 +67,29 @@ def book(competition, club):
         return render_template('welcome.html', club=foundClub, competitions=competitions)
 
 
+def has_enough_points(club, places_required):
+    return places_required <= int(club['points'])
+
+
+def has_enough_places(competition, places_required):
+    return places_required <= int(competition['numberOfPlaces'])
+
+
+def is_within_twelve_limit(competition, club, places_required):
+    return competition['bookings'].get(club['name'], 0) + places_required <= 12
+
+
+def is_valid_places_input(places_input):
+    return places_input.isdigit() and int(places_input) >= 1
+
+
+def register_purchase(competition, club, placesRequired):
+    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
+    club['points'] = int(club['points']) - placesRequired
+    booked = competition['bookings'].get(club['name'], 0)
+    competition['bookings'][club['name']] = booked + placesRequired
+
+
 @app.route('/purchasePlaces', methods=['POST'])
 def purchasePlaces():
 
@@ -79,33 +102,31 @@ def purchasePlaces():
 
     places_input = request.form['places']
 
-    if not places_input.isdigit() or int(places_input) < 1:
+    if not is_valid_places_input(places_input):
         flash("Please enter a number of places greater than zero.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
     placesRequired = int(places_input)
     booked_places = competition['bookings'].get(club['name'], 0)
 
-    if placesRequired > int(club['points']):
+    if not has_enough_points(club, placesRequired):
         flash("Sorry, you do not have enough points for that many places.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
-    if placesRequired > int(competition['numberOfPlaces']):
+    if not has_enough_places(competition, placesRequired):
         flash("Sorry, there are not enough places left in this competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
-    if booked_places + placesRequired > 12:
+    if not is_within_twelve_limit(competition, club, placesRequired):
         flash("Sorry, a club cannot book more than 12 places in one competition.")
         return render_template('welcome.html', club=club, competitions=competitions)
 
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    club['points'] = int(club['points']) - placesRequired
-    competition['bookings'][club['name']] = booked_places + placesRequired
+    register_purchase(competition, club, placesRequired)
     flash("Great! Your booking is complete.")
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
-# TODO: Add route for points display
+@app.route('/pointsBoard', methods=['GET'])
 
 
 @app.route('/logout')
