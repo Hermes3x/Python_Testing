@@ -107,7 +107,6 @@ def purchasePlaces():
         return render_template('welcome.html', club=club, competitions=competitions)
 
     placesRequired = int(places_input)
-    booked_places = competition['bookings'].get(club['name'], 0)
 
     if not has_enough_points(club, placesRequired):
         flash("Sorry, you do not have enough points for that many places.")
@@ -126,7 +125,7 @@ def purchasePlaces():
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
-@app.route('/pointsBoard', methods=['GET'])
+#@app.route('/pointsBoard', methods=['GET'])
 
 
 @app.route('/logout')
