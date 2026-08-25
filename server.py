@@ -49,22 +49,26 @@ def showSummary():
         return render_template('welcome.html', club=club, competitions=competitions)
 
 
+def is_competition_in_the_future(competition):
+    competition_date = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    return datetime.now() < competition_date
+
+
 @app.route('/book/<competition>/<club>')
 def book(competition, club):
 
     foundClub = find_by(clubs, "name", club)
     foundCompetition = find_by(competitions, "name", competition)
 
-    if foundClub and foundCompetition:
-        competition_date = datetime.strptime(foundCompetition['date'], '%Y-%m-%d %H:%M:%S')
-        if datetime.now() < competition_date:
-            return render_template('booking.html', club=foundClub, competition=foundCompetition)
-        else: 
-            flash("Sorry, this competition has already taken place.")
-            return render_template('welcome.html', club=foundClub, competitions=competitions)
-    else:
+    if not foundClub or not foundCompetition:
         flash("Sorry, we could not find that club or competition.")
         return render_template('welcome.html', club=foundClub, competitions=competitions)
+
+    if not is_competition_in_the_future(foundCompetition):
+        flash("Sorry, this competition has already taken place.")
+        return render_template('welcome.html', club=foundClub, competitions=competitions)
+
+    return render_template('booking.html', club=foundClub, competition=foundCompetition)
 
 
 def has_enough_points(club, places_required):

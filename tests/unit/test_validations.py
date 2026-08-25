@@ -5,6 +5,7 @@ from server import (
     is_within_twelve_limit,
     is_valid_places_input,
     register_purchase,
+    is_competition_in_the_future,
 )
 
 
@@ -21,6 +22,15 @@ def fake_competition():
         "numberOfPlaces": "20",
         "bookings": {},
     }
+
+
+def test_is_competition_in_the_future_with_future_date(fake_competition):
+    assert is_competition_in_the_future(fake_competition)
+
+
+def test_is_competition_in_the_future_is_false_with_past_date(fake_competition):
+    fake_competition["date"] = "2020-01-01 10:00:00"
+    assert not is_competition_in_the_future(fake_competition)
 
 
 def test_has_enough_points_when_club_has_more(fake_club):

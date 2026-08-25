@@ -1,4 +1,0 @@
-Cas	État
-Email vide ("")	non testé
-Champ email absent du formulaire	non testé
-Casse différente (JOHN@SIMPLYLIFT.CO)	décision de conception jamais prise
