@@ -1,51 +1,121 @@
-# gudlift-registration
+# GÜDLFT — Plateforme de réservation
 
-1. Why
+Application Flask permettant aux secrétaires de clubs de réserver des places aux compétitions, payées en points. Les données sont stockées dans des fichiers JSON, sans base de données.
 
+Fork de [Python_Testing](https://github.com/OpenClassrooms-Student-Center/Python_Testing),
+projet 12 du parcours Développeur d'application Python — OpenClassrooms.
 
-    This is a proof of concept (POC) project to show a light-weight version of our competition booking platform. The aim is the keep things as light as possible, and use feedback from the users to iterate.
+## Prérequis
 
-2. Getting Started
+**Python 3.14**
 
-    This project uses the following technologies:
+> Les versions épinglées dans le dépôt d'origine ne fonctionnent plus : Werkzeug 1.0.1
+> utilise `ast.Str`, supprimé de Python depuis la 3.12. Les dépendances ont été portées
+> vers Flask 3.1.3 **sans aucune modification du code applicatif**.
 
-    * Python v3.x+
+## Installation
 
-    * [Flask](https://flask.palletsprojects.com/en/1.1.x/)
+```powershell
+git clone https://github.com/Hermes3x/Python_Testing.git
+cd Python_Testing
+python -m venv env
+.\env\Scripts\Activate.ps1
+python -m pip install -r requirements-dev.txt
+```
 
-        Whereas Django does a lot of things for us out of the box, Flask allows us to add only what we need. 
-     
+| Fichier | Contenu |
+|---|---|
+| `requirements.txt` | Flask et ses dépendances — pour faire tourner l'application |
+| `requirements-dev.txt` | pytest, pytest-cov, locust — pour les tests |
 
-    * [Virtual environment](https://virtualenv.pypa.io/en/stable/installation.html)
+`requirements-dev.txt` commence par `-r requirements.txt` : une seule commande installe
+l'application **et** l'outillage.
 
-        This ensures you'll be able to install the correct packages without interfering with Python on your machine.
+## Lancer l'application
 
-        Before you begin, please ensure you have this installed globally. 
+```powershell
+python -m flask --app server run
+```
 
+→ http://127.0.0.1:5000
 
-3. Installation
+| Email | Club | Points |
+|---|---|---|
+| `john@simplylift.co` | Simply Lift | 13 |
+| `admin@irontemple.com` | Iron Temple | 4 |
+| `kate@shelifts.co.uk` | She Lifts | 12 |
 
-    - After cloning, change into the directory and type <code>virtualenv .</code>. This will then set up a a virtual python environment within that directory.
+## Lancer les tests
 
-    - Next, type <code>source bin/activate</code>. You should see that your command prompt has changed to the name of the folder. This means that you can install packages in here without affecting affecting files outside. To deactivate, type <code>deactivate</code>
+```powershell
+pytest -v
+pytest --cov=server --cov-report=term-missing
+```
 
-    - Rather than hunting around for the packages you need, you can install in one step. Type <code>pip install -r requirements.txt</code>. This will install all the packages listed in the respective file. If you install a package, make sure others know by updating the requirements.txt file. An easy way to do this is <code>pip freeze > requirements.txt</code>
+**56 tests · 100 % de couverture**
 
-    - Flask requires that you set an environmental variable to the python file. However you do that, you'll want to set the file to be <code>server.py</code>. Check [here](https://flask.palletsprojects.com/en/1.1.x/quickstart/#a-minimal-application) for more details
+## Structure et classification des tests
 
-    - You should now be ready to test the application. In the directory, type either <code>flask run</code> or <code>python -m flask run</code>. The app should respond with an address you should be able to go to using your browser.
+```
+tests/
+├── unit/                26 tests
+├── integration/         27 tests
+├── functional/           3 tests
+└── performance_tests/   locustfile.py
+```
 
-4. Current Setup
+La classification suit la définition du cours OpenClassrooms :
 
-    The app is powered by [JSON files](https://www.tutorialspoint.com/json/json_quick_guide.htm). This is to get around having a DB until we actually need one. The main ones are:
-     
-    * competitions.json - list of competitions
-    * clubs.json - list of clubs with relevant information. You can look here to see what email addresses the app will accept for login.
+> « Un test faisant appel à une base de données, une API **ou encore une autre méthode** ne sera pas considéré comme un test unitaire. »
 
-5. Testing
+| Dossier | Critère |
+|---|---|
+| `unit/` | appel **direct** d'une fonction, sans Flask ni HTTP |
+| `integration/` | **une** requête HTTP — la route collabore avec d'autres fonctions |
+| `functional/` | **plusieurs** requêtes enchaînées, un parcours utilisateur complet |
 
-    You are free to use whatever testing framework you like-the main thing is that you can show what tests you are using.
+## Tests de performance
 
-    We also like to show how well we're testing, so there's a module called 
-    [coverage](https://coverage.readthedocs.io/en/coverage-5.1/) you should add to your project.
+Deux terminaux :
 
+```powershell
+python -m flask --app server run
+```
+
+```powershell
+python -m locust -f tests/performance_tests/locustfile.py --host http://127.0.0.1:5000
+```
+
+→ tableau de bord sur http://localhost:8089, **6 utilisateurs** (valeur imposée par les specs).
+
+Seuils visés : moins de **5 s** pour afficher la liste des compétitions, moins de **2 s**
+pour mettre à jour un total de points.
+
+## Conventions
+
+**Branches** — `<fonctionnalite|bug|amelioration>/nom-descriptif`, sans accent ni underscore.
+
+**Commits** — `type: description`, avec `fix:`, `feat:`, `test:`, `refactor:`, `style:`, `chore:`.
+Le suffixe `(closes #N)` relie le commit à son issue GitHub.
+
+La branche `QA` est créée depuis `master` et **n'est jamais fusionnée** : c'est elle qui est
+soumise à la relecture.
+
+## Choix et limites assumés
+
+<!-- À COMPLÉTER : une ou deux phrases par point. Dis CE QUE tu as choisi et POURQUOI. -->
+
+- **Persistance** : les données sont chargées depuis les fichiers JSON au démarrage puis modifiées en mémoire ; rien n'est réécrit sur le disque. Redémarrer. Les specs n'exigent pas de persistance, et cette absence garde les tests déterministes. Dans une application réelle, perdre toutes les réservations à chaque redémarrage serait inacceptable.
+
+- **Dates en dur dans `competitions.json`** : deux compétitions à venir (2030) ont été ajoutées pour rendre les règles testables : sans elles, le blocage des compétitions passées interdirait toute réservation. Ces dates finiront par appartenir au passé. Une version plus robuste les calculerait relativement à la date du jour.
+
+- **Absence d'authentification** : l'application ne gère ni mot de passe ni session. L'email saisi identifie un club, il ne l'authentifie pas. Conséquence : toute personne connaissant une URL peut ouvrir une page de réservation, et rien n'empêche de dépenser les points d'un autre club. Les specs n'exigent aucune sécurité ; la faille est  identifiée et laissée hors périmètre, pas ignorée.
+
+- **Ratio tests unitaires / intégration** : 26 tests unitaires pour 30 tests d'intégration et fonctionnels, là où les specs suggèrent deux fois plus d'unitaires. Toute la logique métier a été extraite en six fonctions pures, chacune testée isolément ; atteindre le ratio demandé aurait supposé de fabriquer des tests sans valeur de vérification. L'écart est documenté plutôt que masqué.
+
+## Ressources
+
+- [Flask 3.1](https://flask.palletsprojects.com/en/stable/)
+- [pytest](https://docs.pytest.org/)
+- [coverage.py](https://coverage.readthedocs.io/)
+- [Locust](https://docs.locust.io/)
